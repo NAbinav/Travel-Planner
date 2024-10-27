@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body{
+    background-color: black;
+    color: white;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    overflow-x: hidden;
+}
+input{
+    background-color: transparent;
+    color: white;
+    border: 0cap;
+    border-bottom: 1px solid white;
+    outline: none;
+
+}
+.container {
+    height: 100dvh;
+    position: relative;
+}
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+  }
