@@ -8,7 +8,6 @@ const Page = () => {
   const [inputs, setInputs] = useState({}); // To store user inputs
   const [result, setResult] = useState(null); // To store results
   const [edge, setEdge] = useState(null); // To store edges
-  const [error, setError] = useState(null);
 
   const handleInputChange = (index, value) => {
     // Update inputs based on the index of the place
@@ -34,13 +33,9 @@ const Page = () => {
         setResult(data); // Set the result state
         console.log("Distance and shortest path data:", data.tspData);
         setEdge(data.tspData.edges); // Assuming edges is returned in tspData
-      } else {
-        console.log("Failed to calculate distances:", data.error);
-        setError(data.error); // Set error state to show error message
       }
     } catch (error) {
       console.error("An error occurred:", error.message);
-      setError("An error occurred while fetching distance data."); // General error message
     }
   };
 
