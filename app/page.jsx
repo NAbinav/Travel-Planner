@@ -20,13 +20,16 @@ const Page = () => {
   const handleSubmit = async () => {
     const locations = Object.values(inputs); // Convert inputs to an array
     try {
-      const res = await fetch("/api/distance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ locations }), // Pass locations in the request body
-      });
+      const res = await fetch(
+        "https://travel-planner-blond.vercel.app/api/distance",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ locations }), // Pass locations in the request body
+        }
+      );
       const data = await res.json(); // Parse the response
 
       if (res.ok) {
