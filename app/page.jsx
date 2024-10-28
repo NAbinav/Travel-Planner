@@ -7,8 +7,7 @@ const Page = () => {
   const [places, setPlaces] = useState(["Source", "Destination"]); // Initial places
   const [inputs, setInputs] = useState({}); // To store user inputs
   const [result, setResult] = useState(null); // To store results
-  const [edge, setEdge] = useState(null); // To store edges
-  const [loc, setLoc] = useState(null);
+  const [edge, setEdge] = useState(null);
 
   const handleInputChange = (index, value) => {
     // Update inputs based on the index of the place
@@ -34,8 +33,7 @@ const Page = () => {
         setResult(data); // Set the result state
         console.log("Distance and shortest path data:", data.tspData);
         setEdge(data.tspData.edges); // Assuming edges is returned in tspData
-        setLoc(data.apiData.destination_addresses);
-        console.log(loc);
+        console.log(data.apiData.destination_addresses);
       }
     } catch (error) {
       console.error("An error occurred:", error.message);
