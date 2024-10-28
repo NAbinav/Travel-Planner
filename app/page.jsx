@@ -18,20 +18,6 @@ const Page = () => {
     }));
   };
 
-  const loc_to_ord = async () => {
-    try {
-      const loc = await fetch("/api/distance", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const call_loc = await loc.json();
-      setLoc(call_loc);
-    } catch (err) {
-      console.log(err);
-    }
-  };
   const handleSubmit = async () => {
     const locations = Object.values(inputs); // Convert inputs to an array
     try {
@@ -48,8 +34,8 @@ const Page = () => {
         setResult(data); // Set the result state
         console.log("Distance and shortest path data:", data.tspData);
         setEdge(data.tspData.edges); // Assuming edges is returned in tspData
-        setLoc(data);
-        console.log(data.apiData.destination_addresses);
+        setLoc(data.apiData.destination_addresses);
+        console.log(loc);
       }
     } catch (error) {
       console.error("An error occurred:", error.message);
