@@ -8,6 +8,7 @@ const Page = () => {
   const [inputs, setInputs] = useState({}); // To store user inputs
   const [result, setResult] = useState(null); // To store results
   const [edge, setEdge] = useState(null); // To store edges
+  const [loc, setLoc] = useState(null);
 
   const handleInputChange = (index, value) => {
     // Update inputs based on the index of the place
@@ -17,31 +18,43 @@ const Page = () => {
     }));
   };
 
+  const loc_to_ord = async () => {
+    try {
+      const loc = await fetch("/api/distance", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const call_loc = await loc.json();
+      setLoc(call_loc);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleSubmit = async () => {
     const locations = Object.values(inputs); // Convert inputs to an array
     try {
-      const res = await fetch(
-        "https://travel-planner-blond.vercel.app/api/distance",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ locations }), // Pass locations in the request body
-        }
-      );
+      const res = await fetch("/api/distance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ locations }), // Pass locations in the request body
+      });
       const data = await res.json(); // Parse the response
 
       if (res.ok) {
         setResult(data); // Set the result state
         console.log("Distance and shortest path data:", data.tspData);
         setEdge(data.tspData.edges); // Assuming edges is returned in tspData
+        setLoc(data);
+        console.log(data.apiData.destination_addresses);
       }
     } catch (error) {
       console.error("An error occurred:", error.message);
     }
   };
-
   // Create a separate variable to map the edges and display the paths
   const pathsList =
     edge &&

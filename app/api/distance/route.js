@@ -4,7 +4,6 @@ export async function POST(req) {
     const data = await req.json();
     console.log("Received data:", data); // Log the received data
     const locations = data.locations; // Array of location names
-
     if (!locations || locations.length < 2) {
       return NextResponse.json({ error: "Please provide at least two locations." }, { status: 400 });
     }
@@ -12,12 +11,13 @@ export async function POST(req) {
     // Construct query strings for a complete graph
     const locationsStr = locations.map(location => encodeURIComponent(location)).join('|');
     const apiKey = process.env.API_KEY; // Replace with your actual API key
-    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=${apiKey}`;
+    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=5E0NxVZQge2ywMIUlQ2tLimpvyRZ0IS5cydpTbAO6ebhVgQgSuDeINDu4GsVBmw1`;
 
     // Fetch distance data
     const response = await fetch(apiUrl);
     const apiData = await response.json();
-    console.log("API data received:", apiData); // Log the received data from API
+    console.log("API data received:", apiData);
+  
 
     // Validate API response
     if (apiData.status !== "OK" || !apiData.rows || apiData.rows.length === 0) {
@@ -53,7 +53,7 @@ export async function POST(req) {
     }
 
     const tspData = await tspResponse.json();
-    return NextResponse.json({tspData,dist});
+    return NextResponse.json({tspData,dist,apiData});
   } catch (error) {
     console.error("Error in /api/distance:", error); // Log any errors encountered
     return NextResponse.json({ error: error.message || "Error fetching distance data" }, { status: 500 });
