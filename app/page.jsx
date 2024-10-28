@@ -33,7 +33,7 @@ const Page = () => {
         setResult(data); // Set the result state
         console.log("Distance and shortest path data:", data.tspData);
         setEdge(data.tspData.edges); // Assuming edges is returned in tspData
-        console.log(data.apiData);
+        console.log(data);
       }
     } catch (error) {
       console.error("An error occurred:", error.message);

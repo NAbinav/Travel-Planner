@@ -10,6 +10,7 @@ export async function POST(req) {
 
     // Construct query strings for a complete graph
     const locationsStr = locations.map(location => encodeURIComponent(location)).join('|');
+  
     const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=5E0NxVZQge2ywMIUlQ2tLimpvyRZ0IS5cydpTbAO6ebhVgQgSuDeINDu4GsVBmw1`;
 
     // Fetch distance data
