@@ -11,7 +11,7 @@ const Page = () => {
   const [edge, setEdge] = useState(null);
   const [stdLoc, setStdLoc] = useState(null);
   const [stdOrd, setStdOrd] = useState(null);
-  const [time, setTime] = useState(null);
+  const [cost, setCost] = useState(null);
 
   const handleInputChange = (index, value) => {
     setInputs((prevInputs) => ({
@@ -35,7 +35,7 @@ const Page = () => {
       if (res.ok) {
         setResult(data);
         setEdge(data.tspData.edges); // Set edges correctly
-        setTime(data.tspData.times); // Store travel times
+        setCost(data.tspData.cost); // Store travel times
         setStdLoc(data.apiData.destination_addresses);
 
         // Combine coordinates with names for each point
@@ -109,6 +109,7 @@ const Page = () => {
           <div>
             <h3>Paths:</h3>
             <ul>{pathsList}</ul>
+            <div>Total Trip Distance: {(cost / 1000).toFixed(2)} km</div>
           </div>
         )}
       </div>

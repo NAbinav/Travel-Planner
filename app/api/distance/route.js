@@ -12,7 +12,7 @@ export async function POST(req) {
 
     const locationsStr = locations.map(location => encodeURIComponent(location)).join('|');
 
-    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=lh18ZS8GE48eXi0p8LTx69KJCI7sO1xjLikCZBIMYNxE8psJ9kdRem6W4N1dzo2j`;
+    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=ry3XVw41JBPyLbAAvvpjBVSiEYr93TOWLQ9oBvmDHTq050PQpP8eCtEyqfliUtSH`;
 
     // Fetch distance data
     const response = await fetch(apiUrl);
