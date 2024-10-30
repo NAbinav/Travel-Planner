@@ -1,16 +1,19 @@
-"use client"; // Indicates this is a client-side component
+"use client";
 import React, { useState } from "react";
-import Card from "@/components/Card"; // Importing a custom Card component
 import { motion } from "framer-motion";
+import Card from "@/components/Card";
+import Map from "@/components/Map";
 
 const Page = () => {
-  const [places, setPlaces] = useState(["Source", "Destination"]); // Initial places
-  const [inputs, setInputs] = useState({}); // To store user inputs
-  const [result, setResult] = useState(null); // To store results
+  const [places, setPlaces] = useState(["Source", "Destination"]);
+  const [inputs, setInputs] = useState({});
+  const [result, setResult] = useState(null);
   const [edge, setEdge] = useState(null);
+  const [stdLoc, setStdLoc] = useState(null);
+  const [stdOrd, setStdOrd] = useState(null);
+  const [time, setTime] = useState(null);
 
   const handleInputChange = (index, value) => {
-    // Update inputs based on the index of the place
     setInputs((prevInputs) => ({
       ...prevInputs,
       [index]: value,
@@ -18,38 +21,53 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
-    const locations = Object.values(inputs); // Convert inputs to an array
+    const locations = Object.values(inputs);
     try {
       const res = await fetch("/api/distance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ locations }), // Pass locations in the request body
+        body: JSON.stringify({ locations }),
       });
-      const data = await res.json(); // Parse the response
+      const data = await res.json();
 
       if (res.ok) {
-        setResult(data); // Set the result state
-        console.log("Distance and shortest path data:", data.tspData);
-        setEdge(data.tspData.edges); // Assuming edges is returned in tspData
-        console.log(data);
+        setResult(data);
+        setEdge(data.tspData.edges); // Set edges correctly
+        setTime(data.tspData.times); // Store travel times
+        setStdLoc(data.apiData.destination_addresses);
+
+        // Combine coordinates with names for each point
+        const namedCoordinates = data.co_ordinate_list.map((coord, index) => ({
+          lat: coord.lat,
+          lon: coord.lon,
+          name: data.apiData.destination_addresses[index],
+        }));
+        setStdOrd(namedCoordinates); // Set named coordinates
       }
     } catch (error) {
       console.error("An error occurred:", error.message);
     }
   };
-  // Create a separate variable to map the edges and display the paths
+
   const pathsList =
     edge &&
-    edge.map((e, index) => (
-      <li key={index}>
-        {`${inputs[e[0]]} - ${inputs[e[1]]} - ${
-          result.dist[e[0]][e[1]] / 1000
-        } km`}{" "}
-        {/* Format: from_name - to_name - distance in km */}
-      </li>
-    ));
+    edge.map((e, index) => {
+      // Ensure that time and distance are defined before accessing
+      const distance = result?.dist[e[0]][e[1]];
+      const travelTime = result.time?.[e[0]]?.[e[1]]; // Use optional chaining to avoid undefined access
+
+      return (
+        <li key={index}>
+          {`${stdLoc[e[0]]} - ${stdLoc[e[1]]} - ${
+            distance ? (distance / 1000).toFixed(2) : "N/A"
+          } km ( ${travelTime ? Math.floor(travelTime / 3600) : "N/A"} hrs ${
+            travelTime ? Math.floor((travelTime % 3600) / 60) : "N/A"
+          } min)`}
+        </li>
+      );
+    });
 
   return (
     <div className="my-16">
@@ -57,12 +75,8 @@ const Page = () => {
         <div className="text-center justify-center">
           {places.map((place, index) => (
             <motion.div
-              animate={{
-                x: 0,
-                opacity: 1,
-                onBlur: 0,
-              }}
-              initial={{ x: -400, opacity: 0.2, onBlur: 100 }}
+              animate={{ x: 0, opacity: 1 }}
+              initial={{ x: -400, opacity: 0.2 }}
               key={index}
               className="flex justify-center"
             >
@@ -70,7 +84,7 @@ const Page = () => {
                 input={place}
                 text={index !== 0 ? `Destination ${index}: ` : "Source"}
                 onInputChange={(value) => handleInputChange(index, value)}
-                value={inputs[index] || ""} // Ensure value is reflected
+                value={inputs[index] || ""}
               />
             </motion.div>
           ))}
@@ -78,21 +92,18 @@ const Page = () => {
         <div className="justify-center align-bottom top-3/4">
           <button
             onClick={() => {
-              setPlaces((prevPlaces) => [...prevPlaces, ""]); // Add a new empty input
+              setPlaces((prevPlaces) => [...prevPlaces, ""]);
             }}
             className="w-8 h-8 text-center justify-center rounded-full border-[1px] hover:bg-white hover:text-black transition-all duration-300 border-white"
           >
             +
           </button>
-          <div>
-            <button
-              onClick={handleSubmit}
-              className="m-5 w-max p-3 h-max border-[1px] border-white rounded-sm hover:bg-white hover:text-black transition-all duration-300"
-            >
-              Calculate
-            </button>{" "}
-            {/* Trigger handleSubmit */}
-          </div>
+          <button
+            onClick={handleSubmit}
+            className="m-5 w-max p-3 h-max border-[1px] border-white rounded-sm hover:bg-white hover:text-black transition-all duration-300"
+          >
+            Calculate
+          </button>
         </div>
         {pathsList && (
           <div>
@@ -101,6 +112,7 @@ const Page = () => {
           </div>
         )}
       </div>
+      {stdOrd && <Map points={stdOrd} edges={edge} />}
     </div>
   );
 };

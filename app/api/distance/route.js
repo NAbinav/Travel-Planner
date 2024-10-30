@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
+
 export async function POST(req) {
   try {
     const data = await req.json();
-    console.log("Received data:", data); // Log the received data
-    const locations = data.locations; // Array of location names
+    console.log("Received data:", data);
+    const locations = data.locations;
+
     if (!locations || locations.length < 2) {
       return NextResponse.json({ error: "Please provide at least two locations." }, { status: 400 });
     }
 
-    // Construct query strings for a complete graph
     const locationsStr = locations.map(location => encodeURIComponent(location)).join('|');
-  
-    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=5E0NxVZQge2ywMIUlQ2tLimpvyRZ0IS5cydpTbAO6ebhVgQgSuDeINDu4GsVBmw1`;
+
+    const apiUrl = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${locationsStr}&destinations=${locationsStr}&key=lh18ZS8GE48eXi0p8LTx69KJCI7sO1xjLikCZBIMYNxE8psJ9kdRem6W4N1dzo2j`;
 
     // Fetch distance data
     const response = await fetch(apiUrl);
     const apiData = await response.json();
     console.log("API data received:", apiData);
-  
 
     // Validate API response
     if (apiData.status !== "OK" || !apiData.rows || apiData.rows.length === 0) {
@@ -25,14 +25,18 @@ export async function POST(req) {
       throw new Error(`Distance Matrix API error: ${apiData.error_message}`);
     }
 
-    // Construct the distance matrix (2D array) based on distance data
+    // Construct the distance matrix (2D array)
     const dist = apiData.rows.map(row => {
       return row.elements.map(element => {
         return element.status === "OK" ? element.distance.value : Infinity;
       });
     });
+    const time = apiData.rows.map(row => {
+      return row.elements.map(element => {
+        return element.status === "OK" ? element.duration.value : Infinity;
+      });
+    });
 
-    // Prepare data for TSP algorithm API
     const requestBody = {
       graph: dist,  // Ensure you're sending the graph
     };
@@ -53,7 +57,17 @@ export async function POST(req) {
     }
 
     const tspData = await tspResponse.json();
-    return NextResponse.json({tspData,dist,apiData});
+
+    // Fetch coordinates
+    const co_ordinate_list = [];
+    for (let i = 0; i < locations.length; i++) {
+      const co_ord_api = `https://api.opencagedata.com/geocode/v1/json?q=${apiData.destination_addresses[i]}&key=a2ad2f19711443fda963c386ccf6d2ff`;
+      const co_ord = await fetch(co_ord_api);
+      const co_ord_data = await co_ord.json();
+      co_ordinate_list.push({ "lat": co_ord_data.results[0].geometry.lat, "lon": co_ord_data.results[0].geometry.lng });
+    }
+
+    return NextResponse.json({ tspData, dist, apiData, co_ordinate_list,time });
   } catch (error) {
     console.error("Error in /api/distance:", error); // Log any errors encountered
     return NextResponse.json({ error: error.message || "Error fetching distance data" }, { status: 500 });
